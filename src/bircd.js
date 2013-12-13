@@ -102,6 +102,7 @@ var commands = require('./commands.js');
                         if (getLastByteOnBuffer() == 0x0D)
                         {
                             // Concatenate with buffer and process command
+                            console.log('here1');
                             appendChunkToBuffer(chunk.slice(0, i));
                             var command = parseCommand(self.buffer.slice(0, self.size - 2 + 1));
                             console.log(command);
@@ -110,6 +111,7 @@ var commands = require('./commands.js');
                         }
                         else
                         {
+                            console.log('here2');
                             // Concatenate with buffer and process command
                             appendChunkToBuffer(chunk.slice(0, i));
                             var command = parseCommand(self.buffer.slice(0, self.size - 1 + 1));

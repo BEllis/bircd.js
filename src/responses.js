@@ -4,11 +4,10 @@
      * number, name and reply string.
      */
 
-exports.responses = {
-    /**
-     * 6.1 Error Replies.
-     */
-    ERR: {
+/**
+  * 6.1 Error Replies.
+  */
+exports.ERR = {
         /**
          * 401 ERR_NOSUCHNICK
          * "<nickname> :No such nick/channel"
@@ -18,7 +17,7 @@ exports.responses = {
         NOSUCHNICK: function(client) {
             // Send Response to Client
             // "<nickname> :No such nick/channel"
-        }
+        },
 
         /**        
          * 402 ERR_NOSUCHSERVER
@@ -75,11 +74,12 @@ exports.responses = {
          * - Returned to a registered client to indicate that the
          * command sent is unknown by the server.
          */
-        UNKNOWNCOMMAND: function(session, command) {
+        UNKNOWNCOMMAND: function(command) {
             // "<command> :Unknown command"
-            session.send(session.server.alias, '421', command, ':Unknown command')
-        }
+            this.send(this.server.alias, '421', command, ':Unknown command')
+        },
          
+       /**
          * 422 ERR_NOMOTD
          * ":MOTD File is missing"
          * - Server’s MOTD file could not be opened by the server.
@@ -96,11 +96,20 @@ exports.responses = {
          * ":No nickname given"
          * - Returned when a nickname parameter expected for a
          * command and isn’t found.
+         */
+       /**
          * 432 ERR_ERRONEUSNICKNAME
          * "<nick> :Erroneus nickname"
          * - Returned after receiving a NICK message which contains
          * characters which do not fall in the defined set. See
          * section x.x.x for details on valid nicknames.
+         */
+        ERRONEUSNICKNAME: function(nick) {
+            // "<nick> :Erroneus nickname"
+            this.send(this.server.alias, '432', nick, ':Erroneus nickname')
+        },
+
+       /**
          * 433 ERR_NICKNAMEINUSE
          * "<nick> :Nickname is already in use"
          * - Returned when a NICK message is processed that results
@@ -224,10 +233,10 @@ exports.responses = {
     
     
     
-    /**
-     * 6.2 Command responses.
-     */
-    RLY {
+ /**
+  * 6.2 Command responses.
+  */
+exports.RPL = {
         /**
          * 300 RPL_NONE
          * Dummy reply number. Not used.
@@ -534,9 +543,8 @@ details of the university and department
 contact for the server (an email address here
 is required) in RPL_ADMINEMAIL.
      */
+}
 
-    }
-    
     /** 
      * 6.3 Reserved numerics.
      * These numerics are not described above since they fall into one of
@@ -555,4 +563,3 @@ is required) in RPL_ADMINEMAIL.
      * 466 ERR_YOUWILLBEBANNED 476 ERR_BADCHANMASK
      * 492 ERR_NOSERVICEHOST
      */
-}

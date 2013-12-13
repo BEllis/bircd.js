@@ -1,6 +1,3 @@
-exports.commands = {
-    
-    
     /**
      * 4.1 Connection Registration
      * The commands described here are used to register a connection with an
@@ -35,7 +32,9 @@ exports.commands = {
      * @example
      * PASS secretpasswordhere
      */
-    PASS: function(password) { },
+exports.PASS = function(password) {
+
+};
     
     /**
      * 4.1.2 Nick Message
@@ -63,9 +62,30 @@ exports.commands = {
      * NICK Wiz ; Introducing new nick "Wiz".
      * :WiZ NICK Kilroy ; WiZ changed his nickname to Kilroy.
      */
-    NICK: function(nickname, hopcount) {
-        
-    },
+exports.NICK = function(nickname, hopcount) {
+     // TODO: Check not in use
+     // TODO: Check for collision
+     // TODO: Missing nickname
+     
+     // Ignore if hopcount is specified from a client connection.
+     if (this.isClient && hopcount !== undefined) {
+          // Ignore.
+          return; 
+     }
+
+     // Validate Nickname
+     if (!/^[A-Za-z][A-Za-z0-9\-[\]{}\\`^]*$/.test(nickname))
+     {
+          this.responses.ERR.ERRONEUSNICKNAME.call(this, nickname);
+          return;
+     }
+
+     this.nickname = nickname;
+
+     if (!this.isRegistered && this.username !== undefined) {
+          this.registerClient();
+     }
+};
     
     /** 
      * 4.1.3 User message
@@ -107,7 +127,23 @@ exports.commands = {
      * nickname for which the USER command
      * belongs to
      */
-    USER: function(username, hostname, servername, realname) { },
+exports.USER = function(username, hostname, servername, realname) {
+
+     if (this.isServer && this.message.prefix !== undefined) {
+          // User added to another server.
+     }
+     else
+     {
+          this.username = username;
+          this.hostname = hostname;
+          this.servername = servername;
+          this.realname = realname;
+
+          if (!this.isRegistered && this.nickname !== undefined) {
+               this.registerClient();
+          }
+     }
+};
     
     /**
      * 4.1.4 Server message
@@ -1199,10 +1235,3 @@ exports.commands = {
      * ISON phone trillian WiZ jarlek Avalon Angel Monstah
      * ; Sample ISON request for 7 nicks.
      */
- 
- 
-
-
-
-
-}

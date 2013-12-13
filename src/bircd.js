@@ -4,11 +4,29 @@ var responses = require('./responses.js');
 
     var BIRCSession = function(socket, server) {
         var self = this;
+        self.nickname = undefined;
+        self.isClient = true; // default to client state.
+        self.isServer = false;
+        self.isRegistered = false;
+        self.username = undefined;
+        self.hostname = undefined;
+        self.servername = undefined;
+        self.realname = undefined;
         self.server = server;
         self.bufferSize = 512;
         self.buffer = new Buffer(this.bufferSize);
         self.size = 0;
+        self.responses = responses;
         
+        self.registerClient = function() {
+    		this.isRegistered = true;
+    		self.server.handleNewClientRegistered(self);
+        };
+
+        self.notice = function(message) {
+    		this.send(self.server.alias, 'NOTICE', this.nickname, message);
+        };
+
         self.send = function(prefix, command) {
             if (prefix !== undefined && prefix !== null) {
                 prefix = ':' + prefix + ' ';
@@ -17,15 +35,16 @@ var responses = require('./responses.js');
                 prefix = '';
             }
             
-            var params = arguments.splice(2);
+            var params = Array.prototype.slice.call(arguments, 2);
             var paramsString = '';
             if (params.length > 0) {
                 paramsString = ' ' + params.join(' ');
             }
 
-            var message = new Buffer(prefix + command + paramsString)
-            socket.write(message)
-            socket.pipe();
+            var messageString = prefix + command + paramsString;
+            console.log(' >> ' + messageString);
+            var message = new Buffer(messageString + '\r\n', 'utf8');
+            socket.write(message);
         };
         
         var getLastByteOnBuffer = function() {
@@ -95,6 +114,7 @@ var responses = require('./responses.js');
                 params.push(param)
             }
             
+            console.log(' << ' + buffer.toString('utf8'));
             return { prefix: prefix, command: command, params: params };
         }
         
@@ -102,13 +122,12 @@ var responses = require('./responses.js');
             self.size = 0;
         };
         
-        var processMessage = function(chunk, crlfCharacterCount) {
+        var processMessage = function(crlfCharacterCount) {
             var message = parseCommand(self.buffer.slice(0, self.size - crlfCharacterCount + 1));
-            console.log(message);
-            var commandHandler = commands[message.command]);
+            var commandHandler = commands[message.command];
             if (commandHandler === undefined) {
-                // TODO: Return Unknown command response
-                responses.ERR.UNKNOWNCOMMAND(self, message.command);
+                // Return Unknown command response
+                self.responses.ERR.UNKNOWNCOMMAND.call(self, message.command);
             }
             else
             {
@@ -139,13 +158,13 @@ var responses = require('./responses.js');
                         if (getLastByteOnBuffer() == 0x0D)
                         {
                             appendChunkToBuffer(chunk.slice(startOfChunk, i));
-                            ProcessMessage(2);
+                            processMessage(2);
                             startOfChunk = i + 1
                         }
                         else
                         {
                             appendChunkToBuffer(chunk.slice(startOfChunk, i));
-                            ProcessMessage(1);
+                            processMessage(1);
                             startOfChunk = i + 1
                         }
                     }
@@ -154,13 +173,13 @@ var responses = require('./responses.js');
                         if (chunk[i-1] === 0x0D)
                         {
                             appendChunkToBuffer(chunk.slice(startOfChunk, i));
-                            ProcessMessage(2);
+                            processMessage(2);
                             startOfChunk = i + 1
                         }
                         else
                         {
                             appendChunkToBuffer(chunk.slice(startOfChunk, i));
-                            ProcessMessage(1);
+                            processMessage(1);
                             startOfChunk = i + 1
                         }
                     }
@@ -177,6 +196,13 @@ var responses = require('./responses.js');
         var self = this;
         self.alias = 'irc.b-go.net';
         self.sessions = [];
+
+		self.handleNewClientRegistered = function(session) {
+			session.notice('MOTD #1');
+			session.notice('MOTD #2');
+			session.notice('MOTD #3');
+		};
+
         var connectionListenerWrapper = function(c) {
             
             var session = new BIRCSession(c, self);

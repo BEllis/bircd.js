@@ -63,7 +63,9 @@ exports.commands = {
      * NICK Wiz ; Introducing new nick "Wiz".
      * :WiZ NICK Kilroy ; WiZ changed his nickname to Kilroy.
      */
-    NICK: function(nickname, hopcount) { },
+    NICK: function(nickname, hopcount) {
+        
+    },
     
     /** 
      * 4.1.3 User message

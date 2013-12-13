@@ -1,11 +1,32 @@
 var net = require('net');
 var commands = require('./commands.js');
+var responses = require('./responses.js');
 
-    var BIRCSession = function(socket) {
+    var BIRCSession = function(socket, server) {
         var self = this;
+        self.server = server;
         self.bufferSize = 512;
         self.buffer = new Buffer(this.bufferSize);
         self.size = 0;
+        
+        self.send = function(prefix, command) {
+            if (prefix !== undefined && prefix !== null) {
+                prefix = ':' + prefix + ' ';
+            }
+            else {
+                prefix = '';
+            }
+            
+            var params = arguments.splice(2);
+            var paramsString = '';
+            if (params.length > 0) {
+                paramsString = ' ' + params.join(' ');
+            }
+
+            var message = new Buffer(prefix + command + paramsString)
+            socket.write(message)
+            socket.pipe();
+        };
         
         var getLastByteOnBuffer = function() {
             if (this.size === 0) {
@@ -81,6 +102,22 @@ var commands = require('./commands.js');
             self.size = 0;
         };
         
+        var processMessage = function(chunk, crlfCharacterCount) {
+            var message = parseCommand(self.buffer.slice(0, self.size - crlfCharacterCount + 1));
+            console.log(message);
+            var commandHandler = commands[message.command]);
+            if (commandHandler === undefined) {
+                // TODO: Return Unknown command response
+                responses.ERR.UNKNOWNCOMMAND(self, message.command);
+            }
+            else
+            {
+                commandHandler.apply(self, message.params);
+            }
+            
+            clearBuffer();
+        }
+        
         // Preamble
         var clientId = socket.remoteAddress + ':' + socket.remotePort;
           console.log(clientId + ' connected.');
@@ -101,20 +138,14 @@ var commands = require('./commands.js');
                         // Check last byte on buffer
                         if (getLastByteOnBuffer() == 0x0D)
                         {
-                            // Concatenate with buffer and process command
                             appendChunkToBuffer(chunk.slice(startOfChunk, i));
-                            var command = parseCommand(self.buffer.slice(0, self.size - 2 + 1));
-                            console.log(command);
-                            clearBuffer();
+                            ProcessMessage(2);
                             startOfChunk = i + 1
                         }
                         else
                         {
-                            // Concatenate with buffer and process command
                             appendChunkToBuffer(chunk.slice(startOfChunk, i));
-                            var command = parseCommand(self.buffer.slice(0, self.size - 1 + 1));
-                            console.log(command);
-                            clearBuffer();
+                            ProcessMessage(1);
                             startOfChunk = i + 1
                         }
                     }
@@ -122,20 +153,14 @@ var commands = require('./commands.js');
                     {
                         if (chunk[i-1] === 0x0D)
                         {
-                            // Concatenate with buffer and process command
                             appendChunkToBuffer(chunk.slice(startOfChunk, i));
-                            var command = parseCommand(self.buffer.slice(0, self.size - 2 + 1));
-                            console.log(command);
-                            clearBuffer();
-                            startOfChunk = i + 1;
+                            ProcessMessage(2);
+                            startOfChunk = i + 1
                         }
                         else
                         {
-                            // Concatenate with buffer and process command
                             appendChunkToBuffer(chunk.slice(startOfChunk, i));
-                            var command = parseCommand(self.buffer.slice(0, self.size - 1 + 1));
-                            console.log(command);
-                            clearBuffer();
+                            ProcessMessage(1);
                             startOfChunk = i + 1
                         }
                     }
@@ -150,10 +175,11 @@ var commands = require('./commands.js');
 
     var BIRCDServer = function(options, connectionListener) {
         var self = this;
+        self.alias = 'irc.b-go.net';
         self.sessions = [];
         var connectionListenerWrapper = function(c) {
             
-            var session = new BIRCSession(c);
+            var session = new BIRCSession(c, self);
             self.sessions.push(session);
 
             // New connection

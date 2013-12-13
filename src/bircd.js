@@ -110,7 +110,12 @@ var commands = require('./commands.js');
                         }
                         else
                         {
-                            throw 'unexpected line feed character.';
+                            // Concatenate with buffer and process command
+                            appendChunkToBuffer(chunk.slice(0, i));
+                            var command = parseCommand(self.buffer.slice(0, self.size - 1 + 1));
+                            console.log(command);
+                            clearBuffer();
+                            startOfChunk = i + 1
                         }
                     }
                     else
@@ -126,8 +131,12 @@ var commands = require('./commands.js');
                         }
                         else
                         {
-                            // TODO: ERROR!
-                            throw 'unexpected line feed character.';
+                            // Concatenate with buffer and process command
+                            appendChunkToBuffer(chunk.slice(0, i));
+                            var command = parseCommand(self.buffer.slice(0, self.size - 1 + 1));
+                            console.log(command);
+                            clearBuffer();
+                            startOfChunk = i + 1
                         }
                     }
                   }

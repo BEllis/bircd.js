@@ -55,7 +55,7 @@ var commands = require('./commands.js');
             }
             
             readResult = readToSpace(buffer, index);
-            command = readResult.buffer.toString('utf8');
+            command = readResult.buffer.toString('ascii');
             index = readResult.index;
             
             while (index !== buffer.length)
@@ -71,7 +71,7 @@ var commands = require('./commands.js');
                     index = readResult.index;
                 }
                 
-                params.push(param.toString('utf8'));
+                params.push(param)
             }
             
             return { prefix: prefix, command: command, params: params };

@@ -13,6 +13,9 @@
   "bin": {
     "http-server": "./app"
   },
+  "scripts": {
+    "start": "node ./app.js"
+  },
   "main": "./app",
   "repository": {
     "type": "git",

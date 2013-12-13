@@ -102,7 +102,7 @@ var commands = require('./commands.js');
                         if (getLastByteOnBuffer() == 0x0D)
                         {
                             // Concatenate with buffer and process command
-                            appendChunkToBuffer(chunk.slice(0, i));
+                            appendChunkToBuffer(chunk.slice(startOfChunk, i));
                             var command = parseCommand(self.buffer.slice(0, self.size - 2 + 1));
                             console.log(command);
                             clearBuffer();
@@ -111,7 +111,7 @@ var commands = require('./commands.js');
                         else
                         {
                             // Concatenate with buffer and process command
-                            appendChunkToBuffer(chunk.slice(0, i));
+                            appendChunkToBuffer(chunk.slice(startOfChunk, i));
                             var command = parseCommand(self.buffer.slice(0, self.size - 1 + 1));
                             console.log(command);
                             clearBuffer();
@@ -123,7 +123,7 @@ var commands = require('./commands.js');
                         if (chunk[i-1] === 0x0D)
                         {
                             // Concatenate with buffer and process command
-                            appendChunkToBuffer(chunk.slice(0, i));
+                            appendChunkToBuffer(chunk.slice(startOfChunk, i));
                             var command = parseCommand(self.buffer.slice(0, self.size - 2 + 1));
                             console.log(command);
                             clearBuffer();
@@ -132,7 +132,7 @@ var commands = require('./commands.js');
                         else
                         {
                             // Concatenate with buffer and process command
-                            appendChunkToBuffer(chunk.slice(0, i));
+                            appendChunkToBuffer(chunk.slice(startOfChunk, i));
                             var command = parseCommand(self.buffer.slice(0, self.size - 1 + 1));
                             console.log(command);
                             clearBuffer();

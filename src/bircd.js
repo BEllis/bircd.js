@@ -198,6 +198,7 @@ var responses = require('./responses.js');
         var self = this;
         self.name = 'irc.b-go.net';
         self.sessions = [];
+        self.nicknames = {};
 
 		self.handleNewClientRegistered = function(session) {
 		    // TODO: Increment user count

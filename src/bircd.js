@@ -26,7 +26,7 @@ var responses = require('./responses.js');
         };
 
         self.notice = function(message) {
-    		this.send(self.server.alias, 'NOTICE', this.nickname, message);
+    		this.send(self.server.name, 'NOTICE', this.nickname, message);
         };
 
         self.send = function(prefix, command) {
@@ -204,10 +204,10 @@ var responses = require('./responses.js');
 		    // TODO: Increment user count
             /*- The server sends Replies 001 to 004 to a user upon
             successful registration. */
-		    session.responses.RPL.WELCOME(session.nickname, session.user, session.host);
-			session.responses.RPL.YOURHOST('irc.b-go.net', '0.0.0.0b');
-			session.responses.RPL.CREATED('2013-12-14 15:34:12');
-			session.responses.RPL.MYINFO('irc.b-go.net', '0.0.0.0b', '0', '#,&');
+		    session.responses.RPL.WELCOME.call(session, session.nickname, session.user, session.host);
+			session.responses.RPL.YOURHOST.call(session, 'irc.b-go.net', '0.0.0.0b');
+			session.responses.RPL.CREATED.call(session, '2013-12-14 15:34:12');
+			session.responses.RPL.MYINFO.call(session, 'irc.b-go.net', '0.0.0.0b', '0', '#,&');
 		};
 
         var connectionListenerWrapper = function(c) {

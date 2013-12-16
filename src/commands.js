@@ -94,7 +94,7 @@ exports.NICK = function(nickname, hopcount) {
 
 
     function getLowerCase(str) {
-        str.toLowerCase()
+        return String(str).toLowerCase()
             .replace('[', '{')
             .replace(']', '}')
             .replace('\\', '|')

@@ -304,8 +304,6 @@ exports.RPL = {
             this.send(this.server.name, '004', servername, version, usermodes, channelmodes);
         },
 
-         */
-    
         /**
          * 300 RPL_NONE
          * Dummy reply number. Not used.

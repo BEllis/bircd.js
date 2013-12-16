@@ -204,10 +204,10 @@ var responses = require('./responses.js');
 		    // TODO: Increment user count
             /*- The server sends Replies 001 to 004 to a user upon
             successful registration. */
-		    session.response.RPL.WELCOME(session.nickname, session.user, session.host);
-			session.response.RPL.YOURHOST('irc.b-go.net', '0.0.0.0b');
-			session.response.RPL.CREATED('2013-12-14 15:34:12');
-			session.response.RPL.MYINFO('irc.b-go.net', '0.0.0.0b', '0', '#,&');
+		    session.responses.RPL.WELCOME(session.nickname, session.user, session.host);
+			session.responses.RPL.YOURHOST('irc.b-go.net', '0.0.0.0b');
+			session.responses.RPL.CREATED('2013-12-14 15:34:12');
+			session.responses.RPL.MYINFO('irc.b-go.net', '0.0.0.0b', '0', '#,&');
 		};
 
         var connectionListenerWrapper = function(c) {

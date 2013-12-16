@@ -100,8 +100,8 @@ exports.ERR = {
          * - Returned when a nickname parameter expected for a
          * command and isn’t found.
          */
-        UNKNOWNCOMMAND: function(command) {
-            // "<command> :Unknown command"
+        NONICKNAMEGIVEN: function(command) {
+            // ":No nickname given"
             this.send(this.server.name, '431', ':No nickname given')
         },
          

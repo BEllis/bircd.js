@@ -76,7 +76,7 @@ exports.ERR = {
          */
         UNKNOWNCOMMAND: function(command) {
             // "<command> :Unknown command"
-            this.send(this.server.alias, '421', command, ':Unknown command')
+            this.send(this.server.name, '421', command, ':Unknown command')
         },
          
        /**
@@ -92,11 +92,19 @@ exports.ERR = {
          * ":File error doing <file op> on <file>"
          * - Generic error message used to report a failed file
          * operation during the processing of a message.
+         */
+         
+        /*
          * 431 ERR_NONICKNAMEGIVEN
          * ":No nickname given"
          * - Returned when a nickname parameter expected for a
          * command and isn’t found.
          */
+        UNKNOWNCOMMAND: function(command) {
+            // "<command> :Unknown command"
+            this.send(this.server.name, '431', ':No nickname given')
+        },
+         
        /**
          * 432 ERR_ERRONEUSNICKNAME
          * "<nick> :Erroneus nickname"
@@ -106,7 +114,7 @@ exports.ERR = {
          */
         ERRONEUSNICKNAME: function(nick) {
             // "<nick> :Erroneus nickname"
-            this.send(this.server.alias, '432', nick, ':Erroneus nickname')
+            this.send(this.server.name, '432', nick, ':Erroneus nickname')
         },
 
        /**
@@ -115,6 +123,13 @@ exports.ERR = {
          * - Returned when a NICK message is processed that results
          * in an attempt to change to a currently existing
          * nickname.
+         */
+        NICKNAMEINUSE: function(nick) {
+            // "<nick> :Erroneus nickname"
+            this.send(this.server.name, '433', nick, ':Nickname is already in use')
+        },
+         
+       /**
          * 436 ERR_NICKCOLLISION
          * "<nick> :Nickname collision KILL"
          * - Returned by a server to a client when it detects a
@@ -151,11 +166,20 @@ exports.ERR = {
          * - Returned by the server to indicate that the client
          * must be registered before the server will allow it
          * to be parsed in detail.
+         */
+       /**
          * 461 ERR_NEEDMOREPARAMS
          * "<command> :Not enough parameters"
          * - Returned by the server by numerous commands to
          * indicate to the client that it didn’t supply enough
          * parameters.
+         */
+        NICKNAMEINUSE: function(command) {
+            // "<command> :Not enough parameters"
+            this.send(this.server.name, '433', command, ':Not enough parameters')
+        },
+         
+       /**
          * 462 ERR_ALREADYREGISTRED
          * ":You may not reregister"
          * - Returned by the server to any link which tries to
@@ -237,6 +261,51 @@ exports.ERR = {
   * 6.2 Command responses.
   */
 exports.RPL = {
+    
+        /**
+         * 001    RPL_WELCOME
+         * "Welcome to the Internet Relay Network
+         * <nick>!<user>@<host>"
+         */
+        WELCOME: function(nick, user, host) {
+            // "Welcome to the Internet Relay Network
+            // <nick>!<user>@<host>"
+            function getFullUserName(nick, user, host) {
+                return nick + "!" + user + "@" + host;
+            }
+            
+            this.send(this.server.name, '001', ':Welcome to the Internet Relay Network ' + getFullUserName(nick, user, host))
+        },
+         
+      /**
+       002    RPL_YOURHOST
+              "Your host is <servername>, running version <ver>"
+        */
+        YOURHOST: function(servername, version) {
+            // "Your host is <servername>, running version <ver>"
+            this.send(this.server.name, '002', ':Your host is ' + servername + ', running version' + version);
+        },
+    /**
+       003    RPL_CREATED
+              "This server was created <date>"
+              *
+              */
+        CREATED: function(date) {
+            // "This server was created <date>"
+            this.send(this.server.name, '003', ':This server was created ' + date);
+        },
+              /**
+       004    RPL_MYINFO
+              "<servername> <version> <available user modes>
+               <available channel modes>"
+               */
+        MYINFO: function(servername, version, usermodes, channelmodes) {
+            // "<servername> <version> <available user modes> <available channel modes>"
+            this.send(this.server.name, '004', servername, version, usermodes, channelmodes);
+        },
+
+         */
+    
         /**
          * 300 RPL_NONE
          * Dummy reply number. Not used.

@@ -37,6 +37,14 @@ exports.PASS = function(password) {
 };
     
     /**
+     * 3.1.2 Nick message
+     * Command: NICK
+     * Parameters: <nickname>
+
+     * NICK command is used to give user a nickname or change the existing
+     * one.
+
+     * 
      * 4.1.2 Nick Message
      * NICK message is used to give user a nickname or change the previous
      * one. The <hopcount> parameter is only used by servers to indicate
@@ -63,27 +71,60 @@ exports.PASS = function(password) {
      * :WiZ NICK Kilroy ; WiZ changed his nickname to Kilroy.
      */
 exports.NICK = function(nickname, hopcount) {
-     // TODO: Check not in use
-     // TODO: Check for collision
-     // TODO: Missing nickname
-     
+     // TODO: ERR_NICKCOLLISION
+
      // Ignore if hopcount is specified from a client connection.
      if (this.isClient && hopcount !== undefined) {
           // Ignore.
           return; 
      }
 
+     // Missing nickname parameter
+     if (nickname === undefined) {
+        this.responses.ERR.NONICKNAMEGIVEN.call(this);
+        return; 
+     }
+
      // Validate Nickname
-     if (!/^[A-Za-z][A-Za-z0-9\-[\]{}\\`^]*$/.test(nickname))
+     if (!/^[A-Za-z0-9[\]\\`,_^{|}][A-Za-z0-9[\]\\`,_^{|}-]*$/.test(nickname))
      {
           this.responses.ERR.ERRONEUSNICKNAME.call(this, nickname);
           return;
      }
 
+
+    function getLowerCase(str) {
+        str.toLowerCase()
+            .replace('[', '{')
+            .replace(']', '}')
+            .replace('\\', '|')
+            .replace('~', '^');
+    }
+
+     var lowerCaseNickname = getLowerCase(nickname);
+
+     if (this.server.nicknames[lowerCaseNickname] !== undefined) {
+          this.responses.ERR.NICKNAMEINUSE.call(this, nickname);
+          return;
+     }
+     
+     /*
+     if (lowerCaseNickname = 'annoymous') {
+          this.responses.ERR.RESTRICTED.call(this, nickname);
+          return;
+     } */
+     
+     /*
+     if (this.server.userCount >= this.server.userLimit) {
+          this.responses.ERR.UNAVAILRESOURCE.call(this, nickname);
+          return;
+     }; */
+
      this.nickname = nickname;
+     this.servername = this.server.name;
 
      if (!this.isRegistered && this.username !== undefined) {
-          this.registerClient();
+          this.registerClient(); // this.server.userCount++;
      }
 };
     
@@ -127,17 +168,25 @@ exports.NICK = function(nickname, hopcount) {
      * nickname for which the USER command
      * belongs to
      */
-exports.USER = function(username, hostname, servername, realname) {
+// exports.USER = function(username, hostname, servername, realname) { // RFC 1459
+exports.USER = function(user, mode, unused, realname) {
 
      if (this.isServer && this.message.prefix !== undefined) {
           // User added to another server.
      }
      else
      {
-          this.username = username;
-          this.hostname = hostname;
-          this.servername = servername;
+          this.user = user;
+          this.mode = mode;
           this.realname = realname;
+
+        // ERR_NEEDMOREPARAMS
+        if (realname === undefined) {
+          this.responses.ERR.NEEDMOREPARAMS.call(this, 'USER');
+          return;
+        }
+        
+        // TODO: ERR_ALREADYREGISTRED
 
           if (!this.isRegistered && this.nickname !== undefined) {
                this.registerClient();

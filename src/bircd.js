@@ -8,8 +8,10 @@ var responses = require('./responses.js');
         self.isClient = true; // default to client state.
         self.isServer = false;
         self.isRegistered = false;
-        self.username = undefined;
-        self.hostname = undefined;
+        self.user = undefined;
+        self.mode = 0;
+//        self.username = undefined;
+//        self.hostname = undefined;
         self.servername = undefined;
         self.realname = undefined;
         self.server = server;
@@ -194,13 +196,17 @@ var responses = require('./responses.js');
 
     var BIRCDServer = function(options, connectionListener) {
         var self = this;
-        self.alias = 'irc.b-go.net';
+        self.name = 'irc.b-go.net';
         self.sessions = [];
 
 		self.handleNewClientRegistered = function(session) {
-			session.notice('MOTD #1');
-			session.notice('MOTD #2');
-			session.notice('MOTD #3');
+		    // TODO: Increment user count
+            /*- The server sends Replies 001 to 004 to a user upon
+            successful registration. */
+		    session.response.RPL.WELCOME(session.nickname, session.user, session.host);
+			session.response.RPL.YOURHOST('irc.b-go.net', '0.0.0.0b');
+			session.response.RPL.CREATED('2013-12-14 15:34:12');
+			session.response.RPL.MYINFO('irc.b-go.net', '0.0.0.0b', '0', '#,&');
 		};
 
         var connectionListenerWrapper = function(c) {

@@ -1071,7 +1071,12 @@ exports.USER = function(user, mode, unused, realname) {
      * alive.
      * PING WiZ ; PING message being sent to nick WiZ
      */
+exports.PING = function(server1, server2) {
 
+      this.responses.MSC.PONG.call(this);
+      return;
+          
+};
 
     /**
      * 4.6.3 Pong message

@@ -255,8 +255,6 @@ exports.ERR = {
     
     
     
-    
-    
  /**
   * 6.2 Command responses.
   */
@@ -283,7 +281,7 @@ exports.RPL = {
         */
         YOURHOST: function(servername, version) {
             // "Your host is <servername>, running version <ver>"
-            this.send(this.server.name, '002', ':Your host is ' + servername + ', running version' + version);
+            this.send(this.server.name, '002', ':Your host is ' + servername + ', running version ' + version);
         },
     /**
        003    RPL_CREATED
@@ -611,6 +609,13 @@ contact for the server (an email address here
 is required) in RPL_ADMINEMAIL.
      */
 }
+
+exports.MSC = {
+    PONG: function(server1, server2) {
+        this.send(this.server.name, 'PONG');
+    }
+}
+    
 
     /** 
      * 6.3 Reserved numerics.
